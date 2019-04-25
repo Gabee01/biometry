@@ -26,7 +26,8 @@ class FingerprintLib:
 		images = []
 
 		for database in databasesList:
-			for image in os.listdir(databasesPath + database):
+			databaseImages = os.listdir(databasesPath + database)
+			for image in databaseImages:
 				images.append(databasesPath + database + image)
 
 		return images
@@ -39,7 +40,7 @@ class FingerprintLib:
 	# Implement the fingerprint enhancement
 	def enhance(self, image):
 		(width, height) = image.shape
-		enhanced_image = self.create_blank(width, height)
+		enhanced_image = image[:]
 
 		for i in range(0,  width):
 			for j in range(0,  height):
@@ -54,55 +55,76 @@ class FingerprintLib:
 
 	# Compute the Orientation Map
 	def compute_orientation(self, image):
-		(width, height, _) = image.shape
+		(width, height) = image.shape
 		image = cv2.medianBlur(image,5)
 
 		sobel = self.create_blank(width, height)
+		alpha_x = [[0 for x in range(width)] for y in range(height)]
+		alpha_y = [[0 for x in range(width)] for y in range(height)]
 
-		for i in range(0,  width):
-			for j in range(0,  height):
-				
-				z1 = 0
-				z2 = 0
-				z3 = 0
-				z4 = 0
-				z5 = 0
-				z6 = 0
-				z7 = 0
-				z8 = 0
-				z9 = 0
-
+		for i in range(1,  width - 1):
+			for j in range(1,  height - 1):
+				z1 = image[i - 1,j - 1]
+				z2 = image[i,j - 1]
+				z3 = image[i + 1,j - 1]				
+				z4 = image[i - 1, j]
 				z5 = image[i,j]
-
-				if (i > 0):
-					z4 = image[i - 1, j]
-					if (j > 0):
-						z1 = image[i - 1,j - 1]
-
-				if (j > 0):
-					z2 = image[i,j - 1]
-					if (i < width - 1):
-						z3 = image[i + 1,j - 1]
-
-				if (j < height - 1):
-					z8 = image[i, j + 1]
-					if (i > 0):
-						z7 = image[i - 1,j + 1]
-
-				if (i < width - 1):
-					z6 = image[i + 1, j]
-					if (j < height - 1):
-						z9 = image[i + 1,j + 1]
+				z6 = image[i + 1, j]
+				z7 = image[i - 1,j + 1]				
+				z8 = image[i, j + 1]
+				z9 = image[i + 1,j + 1]
 
 				gx = (z7 + 2*z8 + z9) - (z1 + 2*z2 + z3)
 				gy = (z3 + 2*z6 + z9) - (z1 + 2*z4 + z7)
 
-			ro = math.sqrt(math.pow(gx, 2) + math.pow(gy, 2))
-			theta = math.pow(math.atan(gy/gx), -1)
+				alpha_x[i][j] = math.pow(gx, 2) - math.pow(gy, 2)
+				alpha_y[i][j] = 2 * gx * gy
 
-			print ("ro: " + ro)
-			print ("theta: " + theta)
+		block_size = 10
+		line_length = block_size * math.sqrt(2)
+
+		average_x =	[[0 for x in range(width/block_size)] for y in range(height/block_size)]
+		average_y = [[0 for x in range(width/block_size)] for y in range(height/block_size)]
+
+
+		for i in range(1, width/block_size):
+			for j in range(1, height/block_size):
+				for k in range(i*block_size, (i+1) * block_size):
+					for l in range(j*block_size, (j+1) * block_size):
+						average_x[i][j] += alpha_x[k][l]
+						average_y[i][j] += alpha_y[k][l]
+
+		for i in range(1, width/block_size):
+			for j in range(1, height/block_size):
+				(x_zero, y_zero) = (i * block_size + block_size/2, j * block_size + block_size/2)
+				
+				average_x[i][j] = average_x[i][j]/pow(block_size, 2)
+				average_y[i][j] = average_y[i][j]/pow(block_size, 2)
+				gradient_direction = self.compute_block_angle(average_x[i][j], average_y[i][j])/2
+
+				print(x_zero, line_length, math.cos(gradient_direction), gradient_direction)
+				x = int(x_zero + line_length * math.cos(gradient_direction))
+				y = int(y_zero + line_length * math.sin(gradient_direction))
+
+
+				print ("(" + str(x_zero) + ", " + str(y_zero) + ") >> (" + str(x) + "," + str(y) + ")")
+				cv2.line(image,(x_zero, y_zero),(x, y), (0,255,0), 1)
+
 		return image
+
+	def compute_block_angle(self, a_x, a_y):
+		angle = 0.0
+		if (a_x > 0):
+			angle = np.arctan(a_y/a_x)
+		if (a_x < 0 and a_y >= 0):
+			angle = np.arctan(a_y/a_x) + np.pi
+		if (a_x < 0 and a_y < 0):
+			angle = np.arctan(a_y/a_x) - np.pi
+
+		print (a_y, a_x, angle)
+
+		return angle
+
 	# Load the Fingeprint type annotation
 	# Region of interest detection
 	# Singular point detection (Poincare index)
