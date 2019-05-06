@@ -12,7 +12,12 @@ for image in images:
 	enhanced_img = fingerprint.enhance(cvImage)
 	fingerprint.add_to_plot(enhanced_img, [1,0])
 
-	oriented_image = fingerprint.compute_orientation(enhanced_img)
-	fingerprint.add_to_plot(oriented_image, [2,0])
+	block_size = 10
+	gradient, gradient_image = fingerprint.compute_orientation(enhanced_img, block_size)
+	fingerprint.add_to_plot(gradient, [2,0])
+	fingerprint.add_to_plot(gradient_image, [3,0])
+
+	roi_image = fingerprint.detect_roi(gradient, block_size)
+	fingerprint.add_to_plot(roi_image, [0,1])
 
 	fingerprint.plot()
