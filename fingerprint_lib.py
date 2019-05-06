@@ -42,14 +42,16 @@ class FingerprintLib:
 		(width, height) = image.shape
 		enhanced_image = image[:]
 
+		mean = np.mean(image)
+		variance = np.var(image)
 		for i in range(0,  width):
 			for j in range(0,  height):
-				s = math.sqrt(np.var(image))
-				mean = np.mean(image)
-				if (Y < s):
-					enhanced_image[i, j] = ALPHA + Y * ((image[i, j] - mean)/s)
-				else:
-					enhanced_image[i, j] = ALPHA + Y * ((image[i, j] - mean)/Y)
+				if image[i, j] > 2:
+					s = math.sqrt(variance)
+					if (Y < s):
+						enhanced_image[i, j] = ALPHA + Y * ((image[i, j] - mean)/s)
+					else:
+						enhanced_image[i, j] = ALPHA + Y * ((image[i, j] - mean)/Y)
 
 		return enhanced_image
 
@@ -94,23 +96,26 @@ class FingerprintLib:
 						average_x[i][j] += alpha_x[k][l]
 						average_y[i][j] += alpha_y[k][l]
 
-		for i in range(1, width/block_size):
-			for j in range(1, height/block_size):
-				(x_zero, y_zero) = (i * block_size + block_size/2, j * block_size + block_size/2)
-				
+
+		gradient = image[:]
+		gradient.fill(255) # or img[:] = 255
+		for i in range(0, width/block_size):
+			for j in range(0, height/block_size):
+
 				average_x[i][j] = average_x[i][j]/pow(block_size, 2)
 				average_y[i][j] = average_y[i][j]/pow(block_size, 2)
 				gradient_direction = self.compute_block_angle(average_x[i][j], average_y[i][j])/2
 
-				print(x_zero, line_length, math.cos(gradient_direction), gradient_direction)
+				print('graditent[{}][{}] = arctan = {} rad'.format(i, j, gradient_direction))
+
+				(x_zero, y_zero) = (i * block_size, j * block_size + block_size)
 				x = int(x_zero + line_length * math.cos(gradient_direction))
 				y = int(y_zero + line_length * math.sin(gradient_direction))
+				cv2.line(image,(y_zero,x_zero), (y, x), (0,255,0), 1)
+				cv2.line(gradient,(y_zero,x_zero), (y, x), (0,255,0), 1)
+				print('O = [{},{}], G = [{},{}], degrees = {}'.format(x_zero, y_zero, x, y, math.degrees(gradient_direction)))
 
-
-				print ("(" + str(x_zero) + ", " + str(y_zero) + ") >> (" + str(x) + "," + str(y) + ")")
-				cv2.line(image,(x_zero, y_zero),(x, y), (0,255,0), 1)
-
-		return image
+		return gradient
 
 	def compute_block_angle(self, a_x, a_y):
 		angle = 0.0
@@ -123,7 +128,10 @@ class FingerprintLib:
 
 		print (a_y, a_x, angle)
 
-		return angle
+		# if angle < 0:
+		# 	return 2 * np.pi + angle
+
+		return angle * -1
 
 	# Load the Fingeprint type annotation
 	# Region of interest detection
