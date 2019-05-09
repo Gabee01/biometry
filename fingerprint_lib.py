@@ -7,7 +7,7 @@ import numpy as np
 
 IMAGE_SIZE = (300, 300)
 PLOT_LINES = 4
-PLOT_COLS = 4
+PLOT_COLS = 2
 
 #Enhancement constants
 ALPHA = 150
@@ -65,47 +65,19 @@ class FingerprintLib:
 
 		average_x, average_y = self.compute_average(image, alpha_x, alpha_y, block_size)
 
-		return self.compute_and_draw_gradient(image, average_x, average_y, block_size)
+		gradient_direction = self.compute_gradient(image, average_x, average_y, block_size)
+		gradient, image = self.draw_gradient(image, gradient_direction, block_size)
+		return (gradient, image, average_x, average_y)
 
-	def compute_and_draw_gradient(self, image, average_x, average_y, block_size):
-		gradient = np.empty(IMAGE_SIZE, np.uint8)
-		gradient.fill(255)
 
-		line_length = block_size# * math.sqrt(2)
+	def compute_gradient(self, image, average_x, average_y, block_size):
 		(width, height) = image.shape
+		gradient_direction = [[0 for x in range(width/block_size)] for y in range(height/block_size)]
 		for i in range(0, width/block_size):
 			for j in range(0, height/block_size):
-				average_x[i][j] = average_x[i][j]/pow(block_size, 2)
-				average_y[i][j] = average_y[i][j]/pow(block_size, 2)
-				gradient_direction = self.compute_block_angle(average_x[i][j], average_y[i][j])/2
+				gradient_direction[i][j] = np.arctan2(average_y[i][j], average_x[i][j]) * .5 + np.pi/2#self.compute_block_angle(average_x[i][j], average_y[i][j])
 
-				print('graditent[{}][{}] = arctan = {} rad'.format(i, j, gradient_direction))
-
-				(x_zero, y_zero) = (i * block_size, j * block_size + block_size)
-				x = int(x_zero + line_length * math.cos(gradient_direction))
-				y = int(y_zero + line_length * math.sin(gradient_direction))
-				cv2.line(image,(y_zero,x_zero), (y, x), (0,255,0), 1)
-				cv2.line(gradient,(y_zero,x_zero), (y, x), (0,255,0), 3)
-
-				print('O = [{},{}], G = [{},{}], degrees = {}'.format(x_zero, y_zero, x, y, math.degrees(gradient_direction)))
-
-		return (gradient, image)
-
-	def compute_block_angle(self, a_x, a_y):
-		angle = 0.0
-		if (a_x > 0):
-			angle = np.arctan(a_y/a_x)
-		if (a_x < 0 and a_y >= 0):
-			angle = np.arctan(a_y/a_x) + np.pi
-		if (a_x < 0 and a_y < 0):
-			angle = np.arctan(a_y/a_x) - np.pi
-
-		print (a_y, a_x, angle)
-
-		# if angle < 0:
-		# 	return 2 * np.pi + angle
-
-		return angle * -1
+		return (gradient_direction)
 
 	def compute_average(self, image, alpha_x, alpha_y, block_size):
 		(width, height) = image.shape
@@ -119,74 +91,165 @@ class FingerprintLib:
 					for l in range(j*block_size, (j+1) * block_size):
 						average_x[i][j] += alpha_x[k][l]
 						average_y[i][j] += alpha_y[k][l]
+				
+				average_x[i][j] = average_x[i][j]/pow(block_size, 2)
+				average_y[i][j] = average_y[i][j]/pow(block_size, 2)
 
 		return average_x, average_y
 
 	def compute_alpha(self, image):
 		(width, height) = image.shape
 		sobel = self.create_blank(width, height)
-		alpha_x = [[0 for x in range(width)] for y in range(height)]
-		alpha_y = [[0 for x in range(width)] for y in range(height)]
 
-		for i in range(1,  width - 1):
-			for j in range(1,  height - 1):
-				z1 = image[i - 1,j - 1]
-				z2 = image[i,j - 1]
-				z3 = image[i + 1,j - 1]				
-				z4 = image[i - 1, j]
-				z5 = image[i,j]
-				z6 = image[i + 1, j]
-				z7 = image[i - 1,j + 1]				
-				z8 = image[i, j + 1]
-				z9 = image[i + 1,j + 1]
+		# for i in range(1,  width - 1):
+		# 	for j in range(1,  height - 1):
+		# 		z1 = image[i - 1,j - 1]
+		# 		z2 = image[i    ,j - 1]
+		# 		z3 = image[i + 1,j - 1]				
+		# 		z4 = image[i - 1, j]
+		# 		z5 = image[i    ,j]
+		# 		z6 = image[i + 1, j]
+		# 		z7 = image[i - 1,j + 1]				
+		# 		z8 = image[i    , j + 1]
+		# 		z9 = image[i + 1,j + 1]
 
-				gx = (z7 + 2*z8 + z9) - (z1 + 2*z2 + z3)
-				gy = (z3 + 2*z6 + z9) - (z1 + 2*z4 + z7)
+		# 		gx = (z7 + 2*z8 + z9) - (z1 + 2*z2 + z3)
+		# 		gy = (z3 + 2*z6 + z9) - (z1 + 2*z4 + z7)
 
-				alpha_x[i][j] = math.pow(gx, 2) - math.pow(gy, 2)
-				alpha_y[i][j] = 2 * gx * gy
+		# 		# print("[{}]".format(type(alpha_y[i][j])))
 
+		gx = cv2.Sobel(image,cv2.CV_32F,1,0,ksize=3)
+		gy = cv2.Sobel(image,cv2.CV_32F,0,1,ksize=3)
+
+		alpha_x = gx ** 2 - gy ** 2
+		alpha_y = 2 * gx * gy
 
 		return (alpha_x, alpha_y)
 
 	# Load the Fingeprint type annotation
 	# Region of interest detection
-	def detect_roi(self, gradient, block_size):
-		(width, height) = gradient.shape
+	def detect_roi(self, image, block_size):
+		(width, height) = image.shape
+		mean = [[0 for x in range(width/block_size)] for y in range(height/block_size)]
+		std_dev = [[0 for x in range(width/block_size)] for y in range(height/block_size)]
+		max_mean = 0
+		max_std_dev = 0
+
+		for i in range (0, width/block_size):
+			for j in range (0, height/block_size):
+				block = []
+				block_zero = ((i * block_size), (j * block_size))
+				block_end = (block_zero[0] + block_size, block_zero[1] + block_size)
+
+				# block = image[[block_zero[0], block_end[0]], :][:,[block_zero[1], block_end[1]]]
+				for k in range (block_zero[0], block_end[0]):
+					for l in range (block_zero[1], block_end[1]):
+						block.append(image[k][l])
+
+				mean[i][j] = np.mean(block)
+				std_dev[i][j] = np.std(block)
+
+				if (mean[i][j] > max_mean):
+					max_mean = mean[i][j]
+				if (std_dev[i][j] > max_std_dev):
+					max_std_dev = std_dev[i][j]
+
+		image_center = (width/2, height/2)
+		image_center_distance = image.shape[0] * math.sqrt(2) / 2
+		valid_blocks = [[0 for x in range(width/block_size)] for y in range(height/block_size)]
 		for i in range(0, width/block_size):
 			for j in range(0, height/block_size):
-				block_x = (i * block_size, i * block_size + block_size)
-				block_y = (j * block_size, j * block_size + block_size)
+				block_zero = ((i * block_size), (j * block_size))
+				block_end = (block_zero[0] + block_size, block_zero[1] + block_size)
 
-				if (not self.is_valid(gradient, block_x, block_y)):
-					for k in range(block_x[0], block_x[1]):
-						for l in range (block_y[0], block_y[1]):
-								gradient[k,l] = 0
-		return gradient
+				block_center = ((block_zero[0] + block_size/2), (block_zero[1] + block_size/2))
+				block_ratio_distance = self.get_ratio(image_center, block_center, image_center_distance)
 
-	# v = w0 (1-u) + w1 * o + w2
-	# w0 = 0.5; w1 = 0.5; w2 = (ratio of the distance to the center)
+				if (self.is_valid(block_ratio_distance, mean[i][j], max_mean, std_dev[i][j], max_std_dev)):
+					valid_blocks[i][j] = 1
+		return valid_blocks
+
+	# v = weight_mean (1-u) + weight_std_dev * o + w2
+	# weight_mean = 0.5; weight_std_dev = 0.5; w2 = (ratio of the distance to the center)
 	# u and o are normalized to be in [0,1]
 	# if v > 0.8, the block "is good"
-	def is_valid(self, gradient, block_x, block_y):
-		w0 = 0.5
-		w1 = 0.5
+	def is_valid(self, ratio_distance, mean_block, max_mean, std_dev_block, max_std_dev):
+		weight_mean = 0.5
+		weight_std_dev = 0.5
+		
+		mean = mean_block/max_mean
+		std_dev = std_dev_block/max_std_dev
 
-		w2 = self.get_ratio(gradient.shape, block_x, block_y)
-
-		u = 0#?
-		o = 0#?
-		v = w0 * (1 - u) + w1 * o + w2
+		v = weight_mean * (1 - mean) + weight_std_dev * std_dev + ratio_distance * 1
+		# print("mean_block/max_mean: {}/{} = {}, std_dev_block/max_std_dev: {}/{} = {}, ratio:{}, v:{}"
+			# .format(mean_block, max_mean, mean, std_dev_block, max_std_dev, std_dev, ratio_distance, v))
 
 		if v > 0.8:
 			return True
 
-	def get_ratio(self, gradient_shape, block_x, block_y):
-		image_center = (gradient_shape[0]/2, gradient_shape[1]/2)
-		block_center = (block_x[1] - block_x[0] / 2,
-						block_y[1] - block_y[0] / 2)
-		return ((block_center[0]/image_center[0]) *  block_center[1]/image_center[1])
+	def get_ratio(self, image_center, block_center, greatest_distance):
+		block_distance = math.sqrt(math.pow(block_center[0] - image_center[0], 2) + math.pow(block_center[1] - image_center[1], 2))
+		# print('block distance = {}'.format(block_distance))
+		return 1 - block_distance/greatest_distance
 	# Singular point detection (Poincare index)
+	def smooth_direction(self, image, alpha_x, alpha_y, block_size, valid_blocks):
+		gradient_shape = len(alpha_x), len(alpha_x[1])
+		directions = self.get_smooth_directions(alpha_x, alpha_y, block_size, valid_blocks)
+		return self.draw_gradient(image, directions, block_size)
+
+	def get_smooth_directions(self, alpha_x, alpha_y, block_size, valid_blocks):
+		(width, height) = len(alpha_x), len(alpha_x[1])
+		smoothed_blocks = [[0 for x in range(width)] for y in range(height)]
+		blocks_offset = 1
+		for k in range (0, width):
+			for l in range (0, height):
+				print (k,l)
+				if (valid_blocks[k][l] > 0):
+					# print (k,l,"valid")
+					center_block = (k + blocks_offset, l + blocks_offset)
+					a = 0
+					b = 0
+
+					for m in range(center_block[0] - blocks_offset, center_block[0] + blocks_offset):
+						for n in range (center_block[1] - blocks_offset, center_block[1] + blocks_offset):
+							if ((m, n) != (center_block[0], center_block[1])):
+								a += alpha_x[m][n] 
+								b += alpha_y[m][n]
+
+					a += 2 * alpha_x[center_block[0]][center_block[1]]
+					b += 2 * alpha_y[center_block[0]][center_block[1]]
+					print ("[{},{}] - b = {}; a = {}; b/a = {}".format(m, n, b, a, b/a))
+					smoothed_blocks[center_block[0]][center_block[1]] = np.arctan2(b, a)/2 + np.pi/2
+		return smoothed_blocks
+
+	def draw_gradient(self, image, gradient_direction, block_size):
+		(width, height) = image.shape
+		gradient = np.empty(image.shape, np.uint8)
+		gradient.fill(255)
+		line_length = block_size / 2 + 1
+
+		for i in range(0, width/block_size):
+			for j in range(0, height/block_size):
+				block_center = (i * block_size + block_size/2, j * block_size+block_size/2)
+				# print('graditent[{}][{}] = arctan = {} rad'.format(i, j, gradient_direction[i][j]))
+				# (x_zero, y_zero) = (i * block_size, j * block_size + block_size)
+				(y_zero, x_zero) = block_center
+
+				x = int(x_zero + line_length * math.cos(gradient_direction[i][j]))
+				y = int(y_zero + line_length * math.sin(gradient_direction[i][j]))
+				cv2.line(image,(x_zero,y_zero), (x, y), (0,255,0), 2)
+				cv2.line(gradient,(x_zero,y_zero), (x, y), (0,255,0), 2)
+				
+				# Draw both directions
+				gradient_direction[i][j] = gradient_direction[i][j] + np.pi
+				x = int(x_zero + line_length * math.cos(gradient_direction[i][j]))
+				y = int(y_zero + line_length * math.sin(gradient_direction[i][j]))
+				cv2.line(image,(x_zero,y_zero), (x, y), (0,255,0), 2)
+				cv2.line(gradient,(x_zero,y_zero), (x, y), (0,255,0), 2)
+
+				# print('O = [{},{}], G = [{},{}], degrees = {}'.format(x_zero, y_zero, x, y, math.degrees(gradient_direction[i][j])))
+		return (image, gradient)
+				
 	# Fingerprint Type Classification
 	# Thining
 	# Minutiae Extraction
