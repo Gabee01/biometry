@@ -10,16 +10,19 @@ for image in images:
 	fingerprint.add_to_plot(enhanced_img, [1,0])
 
 	block_size = 11
-	gradient, gradient_image, alpha_x, alpha_y = fingerprint.compute_orientation(enhanced_img, block_size)
+	gradient, gradient_image, average_ax, average_ay = fingerprint.compute_orientation(enhanced_img, block_size)
 	fingerprint.add_to_plot(gradient, [2,0])
 	fingerprint.add_to_plot(gradient_image, [3,0])
 
 	valid_blocks = fingerprint.detect_roi(enhanced_img, block_size)
 	fingerprint.add_to_plot(valid_blocks, [0,1])
 	
-	(smooth_direction, smooth_direction_image) = fingerprint.smooth_direction(enhanced_img, alpha_x, alpha_y, block_size, valid_blocks)
+	(smooth_direction, (direction_ploted, smooth_direction_image)) = fingerprint.smooth_direction(enhanced_img, average_ax, average_ay, block_size, valid_blocks)
 
-	fingerprint.add_to_plot(smooth_direction, [2,1])
-	fingerprint.add_to_plot(smooth_direction_image, [3,1])
+	fingerprint.add_to_plot(smooth_direction, [1, 1])
+	fingerprint.add_to_plot(smooth_direction_image, [2,1])
+
+	poncare_image = fingerprint.compute_poncare(enhanced_img, smooth_direction, valid_blocks, block_size)
+	fingerprint.add_to_plot(poncare_image, [3,1])
 
 	fingerprint.plot()

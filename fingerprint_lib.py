@@ -101,23 +101,6 @@ class FingerprintLib:
 		(width, height) = image.shape
 		sobel = self.create_blank(width, height)
 
-		# for i in range(1,  width - 1):
-		# 	for j in range(1,  height - 1):
-		# 		z1 = image[i - 1,j - 1]
-		# 		z2 = image[i    ,j - 1]
-		# 		z3 = image[i + 1,j - 1]				
-		# 		z4 = image[i - 1, j]
-		# 		z5 = image[i    ,j]
-		# 		z6 = image[i + 1, j]
-		# 		z7 = image[i - 1,j + 1]				
-		# 		z8 = image[i    , j + 1]
-		# 		z9 = image[i + 1,j + 1]
-
-		# 		gx = (z7 + 2*z8 + z9) - (z1 + 2*z2 + z3)
-		# 		gy = (z3 + 2*z6 + z9) - (z1 + 2*z4 + z7)
-
-		# 		# print("[{}]".format(type(alpha_y[i][j])))
-
 		gx = cv2.Sobel(image,cv2.CV_32F,1,0,ksize=3)
 		gy = cv2.Sobel(image,cv2.CV_32F,0,1,ksize=3)
 
@@ -192,44 +175,47 @@ class FingerprintLib:
 		# print('block distance = {}'.format(block_distance))
 		return 1 - block_distance/greatest_distance
 	# Singular point detection (Poincare index)
-	def smooth_direction(self, image, alpha_x, alpha_y, block_size, valid_blocks):
-		gradient_shape = len(alpha_x), len(alpha_x[1])
-		directions = self.get_smooth_directions(alpha_x, alpha_y, block_size, valid_blocks)
-		return self.draw_gradient(image, directions, block_size)
+	def smooth_direction(self, image, average_ax, average_ay, block_size, valid_blocks):
+		smoothed_directions = self.compute_smoothed_directions(average_ax, average_ay, block_size, valid_blocks)
+		return (smoothed_directions, self.draw_gradient(image, smoothed_directions, block_size, valid_blocks))
 
-	def get_smooth_directions(self, alpha_x, alpha_y, block_size, valid_blocks):
+	def compute_smoothed_directions(self, alpha_x, alpha_y, block_size, valid_blocks):
 		(width, height) = len(alpha_x), len(alpha_x[1])
 		smoothed_blocks = [[0 for x in range(width)] for y in range(height)]
 		blocks_offset = 1
 		for k in range (0, width):
 			for l in range (0, height):
-				print (k,l)
-				if (valid_blocks[k][l] > 0):
-					# print (k,l,"valid")
-					center_block = (k + blocks_offset, l + blocks_offset)
-					a = 0
-					b = 0
+				# print (k,l)
+				if (valid_blocks[k][l] == 0):
+					continue
+				# print (k,l,"valid")
+				center_block = (k + blocks_offset, l + blocks_offset)
+				a = 0
+				b = 0
 
-					for m in range(center_block[0] - blocks_offset, center_block[0] + blocks_offset):
-						for n in range (center_block[1] - blocks_offset, center_block[1] + blocks_offset):
-							if ((m, n) != (center_block[0], center_block[1])):
-								a += alpha_x[m][n] 
-								b += alpha_y[m][n]
+				for m in range(center_block[0] - blocks_offset, center_block[0] + blocks_offset):
+					for n in range (center_block[1] - blocks_offset, center_block[1] + blocks_offset):
+						if ((m, n) != (center_block[0], center_block[1])):
+							a += alpha_x[m][n] 
+							b += alpha_y[m][n]
 
-					a += 2 * alpha_x[center_block[0]][center_block[1]]
-					b += 2 * alpha_y[center_block[0]][center_block[1]]
-					print ("[{},{}] - b = {}; a = {}; b/a = {}".format(m, n, b, a, b/a))
-					smoothed_blocks[center_block[0]][center_block[1]] = np.arctan2(b, a)/2 + np.pi/2
+				a += 2 * alpha_x[center_block[0]][center_block[1]]
+				b += 2 * alpha_y[center_block[0]][center_block[1]]
+				# print ("[{},{}] - b = {}; a = {}; b/a = {}".format(m, n, b, a, b/a))
+				smoothed_blocks[k][l] = np.arctan2(b, a)/2 + np.pi/2
 		return smoothed_blocks
 
-	def draw_gradient(self, image, gradient_direction, block_size):
+	def draw_gradient(self, image, gradient_direction, block_size, roi = []):
 		(width, height) = image.shape
-		gradient = np.empty(image.shape, np.uint8)
-		gradient.fill(255)
+		gradient_image = np.empty(image.shape, np.uint8)
+		gradient_oposite = np.empty(image.shape, np.uint8)
+		gradient_image.fill(255)
 		line_length = block_size / 2 + 1
 
 		for i in range(0, width/block_size):
 			for j in range(0, height/block_size):
+				if (roi != [] and roi[i][j] == 0):
+					continue
 				block_center = (i * block_size + block_size/2, j * block_size+block_size/2)
 				# print('graditent[{}][{}] = arctan = {} rad'.format(i, j, gradient_direction[i][j]))
 				# (x_zero, y_zero) = (i * block_size, j * block_size + block_size)
@@ -238,18 +224,65 @@ class FingerprintLib:
 				x = int(x_zero + line_length * math.cos(gradient_direction[i][j]))
 				y = int(y_zero + line_length * math.sin(gradient_direction[i][j]))
 				cv2.line(image,(x_zero,y_zero), (x, y), (0,255,0), 2)
-				cv2.line(gradient,(x_zero,y_zero), (x, y), (0,255,0), 2)
+				cv2.line(gradient_image,(x_zero,y_zero), (x, y), (0,255,0), 2)
 				
 				# Draw both directions
 				gradient_direction[i][j] = gradient_direction[i][j] + np.pi
 				x = int(x_zero + line_length * math.cos(gradient_direction[i][j]))
 				y = int(y_zero + line_length * math.sin(gradient_direction[i][j]))
 				cv2.line(image,(x_zero,y_zero), (x, y), (0,255,0), 2)
-				cv2.line(gradient,(x_zero,y_zero), (x, y), (0,255,0), 2)
+				cv2.line(gradient_image,(x_zero,y_zero), (x, y), (0,255,0), 2)
+
+				gradient_direction[i][j] = gradient_direction[i][j] - np.pi
 
 				# print('O = [{},{}], G = [{},{}], degrees = {}'.format(x_zero, y_zero, x, y, math.degrees(gradient_direction[i][j])))
-		return (image, gradient)
-				
+		return (image, gradient_image)
+	# Poincare
+	def compute_poncare(self, image, gradient, valid_blocks, block_size):
+		(width, height) = image.shape
+		for j in range (1, width/block_size - 1):
+			for i in range (1, height/block_size - 1):
+				# print (k,l)
+				# if (valid_blocks[i][j] == 0):
+					# continue
+				# print (k,l,"valid")
+				center_block = (i, j)
+
+				p = []
+
+				p.append(gradient[center_block[0] - 1][center_block[1] - 1])
+				p.append(gradient[center_block[0] - 1][center_block[1]])
+				p.append(gradient[center_block[0] - 1][center_block[1] + 1])
+				p.append(gradient[center_block[0]][center_block[1] + 1])
+				p.append(gradient[center_block[0] + 1][center_block[1] + 1])
+				p.append(gradient[center_block[0] + 1][center_block[1]])
+				p.append(gradient[center_block[0] + 1][center_block[1] - 1])
+				p.append(gradient[center_block[0]][center_block[1] - 1])
+
+				# angle = (p1 - p2) + (p3 - p2) + (p4 - p3) + (p5 - p4) + (p6 - p5) + (p7 - p5) + (p8 - p7) + (p1 - p8)
+
+				pi = 1/np.pi * self.orientation_sum(p)
+
+				print ("poincare index = {}".format(pi))
+				if (math.degrees(pi) in range(175, 185)):
+					# print ("poincare index = {}".format(pi))
+					# print ("{}, {} = {} rad".format(i, j, pi))
+					cv2.circle(image,center_block, 5, (0,0,255), -1)
+				if (math.degrees(pi) in range(-185, -175)):
+					# print ("poincare index = {}".format(pi))
+					# print ("{}, {} = {} rad".format(i, j, pi))
+					cv2.circle(image,center_block, 5, (0,0,255), -1)
+		return image
+
+	def orientation_sum(self, p):
+		sum = 0
+
+		for i in range(0, len(p) - 1):
+			j = (i + 1) % 8
+			sum += p[j] - p[i]
+			print("sum = {}".format(sum))
+		return sum
+
 	# Fingerprint Type Classification
 	# Thining
 	# Minutiae Extraction
