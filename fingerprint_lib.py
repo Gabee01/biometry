@@ -4,10 +4,11 @@ import math
 import cv2
 from matplotlib import pyplot as plt
 import numpy as np
+from PIL import Image
 
 IMAGE_SIZE = (300, 300)
 PLOT_LINES = 4
-PLOT_COLS = 2
+PLOT_COLS = 3
 
 #Enhancement constants
 ALPHA = 150
@@ -187,6 +188,7 @@ class FingerprintLib:
 			for l in range (0, height):
 				# print (k,l)
 				if (valid_blocks[k][l] == 0):
+					smoothed_blocks[k][l] = 0
 					continue
 				# print (k,l,"valid")
 				center_block = (k + blocks_offset, l + blocks_offset)
@@ -238,53 +240,69 @@ class FingerprintLib:
 				# print('O = [{},{}], G = [{},{}], degrees = {}'.format(x_zero, y_zero, x, y, math.degrees(gradient_direction[i][j])))
 		return (image, gradient_image)
 	# Poincare
-	def compute_poncare(self, image, gradient, valid_blocks, block_size):
+	def compute_poncare(self, image, angles, valid_blocks, block_size):
 		(width, height) = image.shape
-		for j in range (1, width/block_size - 1):
-			for i in range (1, height/block_size - 1):
-				# print (k,l)
-				# if (valid_blocks[i][j] == 0):
-					# continue
-				# print (k,l,"valid")
-				center_block = (i, j)
+		singularities_image = [[0 for x in range(width)] for y in range(height)]
+		# result = Image.fromarray(image, 'RGB')
 
-				p = []
+		# draw = ImageDraw.Draw(result)
 
-				p.append(gradient[center_block[0] - 1][center_block[1] - 1])
-				p.append(gradient[center_block[0] - 1][center_block[1]])
-				p.append(gradient[center_block[0] - 1][center_block[1] + 1])
-				p.append(gradient[center_block[0]][center_block[1] + 1])
-				p.append(gradient[center_block[0] + 1][center_block[1] + 1])
-				p.append(gradient[center_block[0] + 1][center_block[1]])
-				p.append(gradient[center_block[0] + 1][center_block[1] - 1])
-				p.append(gradient[center_block[0]][center_block[1] - 1])
+		colors = {"loop" : (150, 0, 0), "delta" : (0, 150, 0), "whorl": (0, 0, 150)}
 
-				# angle = (p1 - p2) + (p3 - p2) + (p4 - p3) + (p5 - p4) + (p6 - p5) + (p7 - p5) + (p8 - p7) + (p1 - p8)
+		for i in range(1, len(angles) - 1):
+			for j in range(1, len(angles[i]) - 1):
+				if (valid_blocks[i][j] == 0):
+					continue
+				circle_size = 10
+				singularity = self.poincare_index_at(i, j, angles)
+				if singularity != "none":
+					cv2.circle(image,((j+1) * block_size, (i+1) * block_size), circle_size, colors[singularity], -1)
+					# cv2.ellipse(singularities_image, (i * block_size, j * block_size), ((i + 1) * block_size, (j + 1) * block_size), colors[singularity])
 
-				pi = 1/np.pi * self.orientation_sum(p)
-
-				print ("poincare index = {}".format(pi))
-				if (math.degrees(pi) in range(175, 185)):
-					# print ("poincare index = {}".format(pi))
-					# print ("{}, {} = {} rad".format(i, j, pi))
-					cv2.circle(image,center_block, 5, (0,0,255), -1)
-				if (math.degrees(pi) in range(-185, -175)):
-					# print ("poincare index = {}".format(pi))
-					# print ("{}, {} = {} rad".format(i, j, pi))
-					cv2.circle(image,center_block, 5, (0,0,255), -1)
 		return image
 
-	def orientation_sum(self, p):
-		sum = 0
+	def poincare_index_at(self, i, j, angles):
+		tolerance = 5
+		cells = [(-1, -1), (-1, 0), (-1, 1), (0, 1), (1, 1), (1, 0), (1, -1), (0, -1), (-1, -1)]
+		deg_angles = [math.degrees(angles[i - k][j - l]) % 180 for k, l in cells]
+		index = 0
+		for k in range(0, 8):
+			if abs(self.get_angle(deg_angles[k], deg_angles[k + 1])) > 90:
+				deg_angles[k + 1] += 180
+			index += self.get_angle(deg_angles[k], deg_angles[k + 1])
 
-		for i in range(0, len(p) - 1):
-			j = (i + 1) % 8
-			sum += p[j] - p[i]
-			print("sum = {}".format(sum))
-		return sum
+		if 180 - tolerance <= index and index <= 180 + tolerance:
+			return "loop"
+		if -180 - tolerance <= index and index <= -180 + tolerance:
+			return "delta"
+		if 360 - tolerance <= index and index <= 360 + tolerance:
+			return "whorl"
+		return "none"
+
+	def get_angle(self, left, right):
+		signum = lambda x: -1 if x < 0 else 1
+		angle = left - right
+		if abs(angle) > 180:
+			angle = -1 * signum(angle) * (360 - abs(angle))
+		return angle
 
 	# Fingerprint Type Classification
 	# Thining
+	def binarize(self, image):
+		(width, height) = image.shape
+		binarized_image = np.empty(image.shape, np.bool)
+
+		for i in range(0, width):
+			for j in range (0, height):
+				if (image[i][j] < 25):
+					binarized_image[i][j] = 0
+				elif (image[i][j] < 50):
+					binarized_image[i][j] = 1
+				# else:
+				# 	for k in range(i-1):
+				# 		for l in range (j-1):
+		return binarized_image
+
 	# Minutiae Extraction
 	# Pattern Matching
 

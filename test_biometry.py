@@ -20,9 +20,13 @@ for image in images:
 	(smooth_direction, (direction_ploted, smooth_direction_image)) = fingerprint.smooth_direction(enhanced_img, average_ax, average_ay, block_size, valid_blocks)
 
 	fingerprint.add_to_plot(smooth_direction, [1, 1])
-	fingerprint.add_to_plot(smooth_direction_image, [2,1])
+	fingerprint.add_to_plot(direction_ploted, [2,1])
+	fingerprint.add_to_plot(smooth_direction_image, [3,1])
 
-	poncare_image = fingerprint.compute_poncare(enhanced_img, smooth_direction, valid_blocks, block_size)
-	fingerprint.add_to_plot(poncare_image, [3,1])
+	print(smooth_direction)
+	poncare_image = fingerprint.compute_poncare(direction_ploted, smooth_direction, valid_blocks, block_size)
+	fingerprint.add_to_plot(poncare_image, [2,2])
+	binarized_image = fingerprint.binarize(direction_ploted)
+	fingerprint.add_to_plot(binarized_image, [3,2])
 
 	fingerprint.plot()
