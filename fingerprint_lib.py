@@ -211,6 +211,7 @@ class FingerprintLib:
 		(width, height) = image.shape
 		gradient_image = np.empty(image.shape, np.uint8)
 		gradient_oposite = np.empty(image.shape, np.uint8)
+		image_copy = np.copy(image)
 		gradient_image.fill(255)
 		line_length = block_size / 2 + 1
 
@@ -225,27 +226,25 @@ class FingerprintLib:
 
 				x = int(x_zero + line_length * math.cos(gradient_direction[i][j]))
 				y = int(y_zero + line_length * math.sin(gradient_direction[i][j]))
-				cv2.line(image,(x_zero,y_zero), (x, y), (0,255,0), 2)
+				cv2.line(image_copy,(x_zero,y_zero), (x, y), (0,255,0), 2)
 				cv2.line(gradient_image,(x_zero,y_zero), (x, y), (0,255,0), 2)
 				
 				# Draw both directions
 				gradient_direction[i][j] = gradient_direction[i][j] + np.pi
 				x = int(x_zero + line_length * math.cos(gradient_direction[i][j]))
 				y = int(y_zero + line_length * math.sin(gradient_direction[i][j]))
-				cv2.line(image,(x_zero,y_zero), (x, y), (0,255,0), 2)
+				cv2.line(image_copy,(x_zero,y_zero), (x, y), (0,255,0), 2)
 				cv2.line(gradient_image,(x_zero,y_zero), (x, y), (0,255,0), 2)
 
 				gradient_direction[i][j] = gradient_direction[i][j] - np.pi
 
 				# print('O = [{},{}], G = [{},{}], degrees = {}'.format(x_zero, y_zero, x, y, math.degrees(gradient_direction[i][j])))
-		return (image, gradient_image)
+		return (image_copy, gradient_image)
 	# Poincare
-	def compute_poncare(self, image, angles, valid_blocks, block_size):
+	def compute_poincare(self, image, angles, valid_blocks, block_size):
 		(width, height) = image.shape
-		singularities_image = [[0 for x in range(width)] for y in range(height)]
-		# result = Image.fromarray(image, 'RGB')
 
-		# draw = ImageDraw.Draw(result)
+		singularities_image = self.create_blank(width, height)
 
 		colors = {"loop" : (150, 0, 0), "delta" : (0, 150, 0), "whorl": (0, 0, 150)}
 
@@ -256,13 +255,12 @@ class FingerprintLib:
 				circle_size = 10
 				singularity = self.poincare_index_at(i, j, angles)
 				if singularity != "none":
-					cv2.circle(image,((j+1) * block_size, (i+1) * block_size), circle_size, colors[singularity], -1)
-					# cv2.ellipse(singularities_image, (i * block_size, j * block_size), ((i + 1) * block_size, (j + 1) * block_size), colors[singularity])
+					cv2.circle(singularities_image,((j+1) * block_size, (i+1) * block_size), circle_size, colors[singularity], -1)
 
-		return image
+		return singularities_image
 
 	def poincare_index_at(self, i, j, angles):
-		tolerance = 5
+		tolerance = 2
 		cells = [(-1, -1), (-1, 0), (-1, 1), (0, 1), (1, 1), (1, 0), (1, -1), (0, -1), (-1, -1)]
 		deg_angles = [math.degrees(angles[i - k][j - l]) % 180 for k, l in cells]
 		index = 0
@@ -291,30 +289,140 @@ class FingerprintLib:
 	def binarize(self, image):
 		(width, height) = image.shape
 		binarized_image = np.empty(image.shape, np.bool)
+		bins = range(256)
+		histogram, _ = np.histogram(image, bins)
+
+		# print("histogram: {}\nTotal = {}".format(histogram, histogram_total))
+
+		quarter_percentile, half_percientile = self.get_percentiles(histogram)
+
+		# self.add_to_plot(histogram, [0,2])
+		# print("p25 = {}; p50 = {}".format(quarter_percentile, half_percientile))
 
 		for i in range(0, width):
 			for j in range (0, height):
-				if (image[i][j] < 25):
+				if (image[i][j] < quarter_percentile):
 					binarized_image[i][j] = 0
-				elif (image[i][j] < 50):
+				elif (image[i][j] > half_percientile):
 					binarized_image[i][j] = 1
-				# else:
-				# 	for k in range(i-1):
-				# 		for l in range (j-1):
+				else:
+					binarized_image[i][j] = self.compare_mean(image, i, j)
+
 		return binarized_image
+
+	def compare_mean(self, image, i, j):
+		(width, height) = image.shape
+		cells = []
+		block_start = -1
+		block_end = 1
+		for i in range(block_start, block_end):
+			for j in range (block_start, block_end):
+				if (i <= width and j<=height):
+					cells.append((i,j))	
+			block_pixels = [image[i - k][j - l] for k, l in cells]
+
+		if (image[i][j] > np.mean(block_pixels)):
+			return 1
+		else:
+			return 0
+
+	def get_percentiles(self, histogram):
+		histogram_total = sum(histogram)
+
+		accumulator = 0
+		quarter_percentile = 0
+		half_percientile = 0
+		for i in range(0, len(histogram)):
+			accumulator += histogram[i]
+			if (quarter_percentile == 0 and accumulator >= histogram_total * .25):
+				quarter_percentile = i
+			if (half_percientile == 0 and accumulator >= histogram_total * .5):
+				half_percientile = i
+				return quarter_percentile, half_percientile
+
+	def smooth_binarized_image(self, binarized_image):
+		# cells = [(-1, -1), (-1, 0), (-1, 1), (0, 1), (1, 1), (1, 0), (1, -1), (0, -1), (-1, -1)]
+		(width, height) = binarized_image.shape
+		smoothed_image = binarized_image[:]# self.create_blank(width, height)
+		for i in range(width):
+			for j in range(height):
+				# white_count, black_count = self.measure_noise(binarized_image, -2, 2, i, j)
+				# if (white_count >= 18):
+				# 	smoothed_image[i][j] = 1
+				# elif (black_count >= 18):
+				# 	smoothed_image[i][j] = 0
+				# else:
+				# 	smoothed_image[i][j] = binarized_image[i][j]
+
+				very_smoothed_image = smoothed_image[:]
+				white_count, black_count = self.measure_noise(smoothed_image, -1, 1, i, j)
+				if (white_count >= 5):
+					very_smoothed_image[i][j] = 1
+				elif (black_count >= 5):
+					very_smoothed_image[i][j] = 0
+				else:
+					very_smoothed_image[i][j] = smoothed_image[i][j]
+
+		return smoothed_image
+
+
+	def measure_noise(self, binarized_image, block_start, block_end, i, j):
+		# cells = []
+		# (width, height) = binarized_image.shape
+		# for m in range(block_start, block_end):
+		# 	for n in range (block_start, block_end):
+		# 		if (i <= width and j<=height):
+		# 			cells.append((m,n))
+
+		# block_pixels = [binarized_image[i - k][j - l] for k, l in cells]
+
+		black_count = 0
+		white_count = 0
+		
+		for k in range(i - block_start, i + block_end):
+			for l in range(j - block_start, j + block_end):
+				if (k == i and l == j):
+					continue
+				if (binarized_image[i][j] == 1):
+					white_count += 1
+				if (binarized_image[i][j] == 0):
+					black_count += 1
+
+		return white_count, black_count
+
+	# def skeletonize(self, img):
+	# 	# skel = cv2.distanceTransform(img, cv2.DIST_C, 3)
+	# 	# ret,img = cv2.threshold(img,127,255,0)
+	# 	element = cv2.getStructuringElement(cv2.MORPH_CROSS,(3, 3))
+	# 	done = False
+		
+	# 	while( not done):
+	# 		eroded = cv2.erode(img,element)
+	# 		temp = cv2.dilate(eroded,element)
+	# 		temp = cv2.subtract(img,temp)
+	# 		skel = cv2.bitwise_or(skel,temp)
+	# 		img = eroded.copy()
+
+	# 		zeros = size - cv2.countNonZero(img)
+	# 		if zeros==size:
+	# 			done = True
+		
+	# 	return skel
 
 	# Minutiae Extraction
 	# Pattern Matching
 
-
 	#General helpers
 	def plot(self):
+		plt.tight_layout()
 		plt.pause(15)
 		plt.close()
 		self._fig, self._aplt = plt.subplots(PLOT_LINES, PLOT_COLS)
 
-	def add_to_plot(self, image, positionToPlot):
-		self._aplt[positionToPlot[0], positionToPlot[1]].imshow(image, cmap='Greys_r')
+	def add_to_plot(self, image, positionToPlot, title):
+		plot = self._aplt[positionToPlot[0], positionToPlot[1]]
+		plot.set_title(title)
+		plot.imshow(image, cmap='Greys_r')
 
 	def create_blank(self, width, height):
 		blank_image = np.zeros((height, width, 3), np.uint8)
