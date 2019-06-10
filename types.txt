@@ -1,0 +1,143 @@
+/Users/gabrielcarraro/Workspace/fingerprint_id/databases/Rindex28/f008R2.raw
+{'loop': [(15, 2), (15, 22)], 'delta': [(8, 10), (16, 21)]}
+/Users/gabrielcarraro/Workspace/fingerprint_id/databases/Rindex28/f013R1.raw
+{'loop': [(17, 16)], 'delta': [(13, 12)]}
+/Users/gabrielcarraro/Workspace/fingerprint_id/databases/Rindex28/f011R3.raw
+{'loop': [(18, 4), (19, 24)], 'delta': [(12, 11), (16, 12)]}
+/Users/gabrielcarraro/Workspace/fingerprint_id/databases/Rindex28/f011R2.raw
+{'loop': [(16, 3), (18, 23)], 'delta': [(8, 9), (13, 10)]}
+/Users/gabrielcarraro/Workspace/fingerprint_id/databases/Rindex28/f008R3.raw
+{'loop': [(16, 2), (16, 24)], 'delta': [(10, 11), (14, 12)]}
+/Users/gabrielcarraro/Workspace/fingerprint_id/databases/Rindex28/f017R4.raw
+{'loop': [(17, 15)], 'delta': [(14, 12)]}
+/Users/gabrielcarraro/Workspace/fingerprint_id/databases/Rindex28/f015R4.raw
+{'loop': [(16, 3), (20, 20), (21, 20)], 'delta': [(10, 10), (17, 11)]}
+/Users/gabrielcarraro/Workspace/fingerprint_id/databases/Rindex28/f008R1.raw
+{'loop': [(16, 1), (20, 20)], 'delta': [(10, 10), (14, 11)]}
+/Users/gabrielcarraro/Workspace/fingerprint_id/databases/Rindex28/f013R2.raw
+{'loop': [(16, 16)], 'delta': [(12, 12)]}
+/Users/gabrielcarraro/Workspace/fingerprint_id/databases/Rindex28/f028R4.raw
+{'loop': [(20, 9)], 'delta': [(12, 15)]}
+/Users/gabrielcarraro/Workspace/fingerprint_id/databases/Rindex28/f011R1.raw
+{'loop': [(13, 2), (17, 23)], 'delta': [(9, 10), (12, 10)]}
+/Users/gabrielcarraro/Workspace/fingerprint_id/databases/Rindex28/f013R3.raw
+{'loop': [(16, 15)], 'delta': [(12, 12)]}
+/Users/gabrielcarraro/Workspace/fingerprint_id/databases/Rindex28/f017R3.raw
+{'loop': [(17, 23)], 'delta': [(15, 13)]}
+/Users/gabrielcarraro/Workspace/fingerprint_id/databases/Rindex28/f015R1.raw
+{'loop': [(17, 2), (17, 20), (18, 20)], 'delta': [(9, 12), (15, 12)]}
+/Users/gabrielcarraro/Workspace/fingerprint_id/databases/Rindex28/f008R4.raw
+{'loop': [(11, 23), (14, 2)], 'delta': [(6, 11), (11, 12)]}
+/Users/gabrielcarraro/Workspace/fingerprint_id/databases/Rindex28/f028R1.raw
+{'loop': [(14, 17), (21, 8)], 'delta': [(13, 13), (14, 19)]}
+/Users/gabrielcarraro/Workspace/fingerprint_id/databases/Rindex28/f011R4.raw
+{'loop': [(15, 4), (18, 23)], 'delta': [(12, 10), (16, 11)]}
+/Users/gabrielcarraro/Workspace/fingerprint_id/databases/Rindex28/f017R2.raw
+{'loop': [(18, 15)], 'delta': [(15, 13)]}
+/Users/gabrielcarraro/Workspace/fingerprint_id/databases/Rindex28/f015R2.raw
+{'loop': [(16, 2), (17, 20), (18, 20)], 'delta': [(9, 11), (17, 22)]}
+/Users/gabrielcarraro/Workspace/fingerprint_id/databases/Rindex28/f013R4.raw
+{'loop': [(17, 16)], 'delta': [(12, 12)]}
+/Users/gabrielcarraro/Workspace/fingerprint_id/databases/Rindex28/f028R2.raw
+{'loop': [(21, 9)], 'delta': [(12, 19)]}
+/Users/gabrielcarraro/Workspace/fingerprint_id/databases/Rindex28/f028R3.raw
+{'loop': [(14, 18), (22, 9)], 'delta': [(13, 15), (15, 20)]}
+/Users/gabrielcarraro/Workspace/fingerprint_id/databases/Rindex28/f015R3.raw
+{'loop': [(16, 3), (17, 22)], 'delta': [(8, 15), (15, 24)]}
+/Users/gabrielcarraro/Workspace/fingerprint_id/databases/Rindex28/f017R1.raw
+{'loop': [(17, 17), (18, 20)], 'delta': [(16, 19), (19, 20)]}
+/Users/gabrielcarraro/Workspace/fingerprint_id/databases/Rindex28/f012R2.raw
+{'loop': [(15, 6), (21, 21)], 'delta': [(10, 11), (13, 11)]}
+/Users/gabrielcarraro/Workspace/fingerprint_id/databases/Rindex28/f014R4.raw
+{'loop': [(13, 1), (14, 24)], 'delta': [(9, 11), (18, 8)]}
+/Users/gabrielcarraro/Workspace/fingerprint_id/databases/Rindex28/f009R1.raw
+{'loop': [(20, 24), (22, 3)], 'delta': [(17, 11), (20, 12)]}
+/Users/gabrielcarraro/Workspace/fingerprint_id/databases/Rindex28/f012R3.raw
+{'loop': [(20, 9), (21, 23)], 'delta': [(15, 14), (18, 15)]}
+/Users/gabrielcarraro/Workspace/fingerprint_id/databases/Rindex28/f010R1.raw
+{'loop': [(20, 4)], 'delta': [(13, 11)]}
+/Users/gabrielcarraro/Workspace/fingerprint_id/databases/Rindex28/f010R3.raw
+{'loop': [(20, 6)], 'delta': [(12, 13), (19, 22)]}
+/Users/gabrielcarraro/Workspace/fingerprint_id/databases/Rindex28/f012R1.raw
+{'loop': [(17, 7), (22, 22)], 'delta': [(12, 12), (15, 13)]}
+/Users/gabrielcarraro/Workspace/fingerprint_id/databases/Rindex28/f009R2.raw
+{'loop': [(21, 25), (24, 5)], 'delta': [(19, 12), (23, 13)]}
+/Users/gabrielcarraro/Workspace/fingerprint_id/databases/Rindex28/f016R4.raw
+{'loop': [(15, 23), (16, 2)], 'delta': [(12, 12), (22, 9)]}
+/Users/gabrielcarraro/Workspace/fingerprint_id/databases/Rindex28/f009R3.raw
+{'loop': [(20, 24), (22, 2)], 'delta': [(17, 11), (21, 12)]}
+/Users/gabrielcarraro/Workspace/fingerprint_id/databases/Rindex28/f010R2.raw
+{'loop': [(17, 6)], 'delta': [(10, 14)]}
+/Users/gabrielcarraro/Workspace/fingerprint_id/databases/Rindex28/f012R4.raw
+{'loop': [(16, 6), (21, 21)], 'delta': [(12, 10), (15, 11)]}
+/Users/gabrielcarraro/Workspace/fingerprint_id/databases/Rindex28/f014R2.raw
+{'loop': [(9, 5), (9, 25)], 'delta': [(5, 15), (14, 12)]}
+/Users/gabrielcarraro/Workspace/fingerprint_id/databases/Rindex28/f016R1.raw
+{'loop': [(14, 1), (14, 22)], 'delta': [(12, 10), (21, 7)]}
+/Users/gabrielcarraro/Workspace/fingerprint_id/databases/Rindex28/f014R3.raw
+{'loop': [(9, 4), (11, 25)], 'delta': [(5, 15), (13, 14)]}
+/Users/gabrielcarraro/Workspace/fingerprint_id/databases/Rindex28/f014R1.raw
+{'loop': [(9, 5), (12, 25)], 'delta': [(6, 14), (15, 12)]}
+/Users/gabrielcarraro/Workspace/fingerprint_id/databases/Rindex28/f009R4.raw
+{'loop': [(20, 1), (21, 24)], 'delta': [(16, 11), (19, 11)]}
+/Users/gabrielcarraro/Workspace/fingerprint_id/databases/Rindex28/f016R3.raw
+{'loop': [(11, 1), (12, 23)], 'delta': [(13, 22), (18, 8)]}
+/Users/gabrielcarraro/Workspace/fingerprint_id/databases/Rindex28/f016R2.raw
+{'loop': [(15, 2), (17, 23)], 'delta': [(14, 10), (23, 7)]}
+/Users/gabrielcarraro/Workspace/fingerprint_id/databases/Rindex28/f010R4.raw
+{'loop': [(21, 16)], 'delta': [(14, 11)]}
+/Users/gabrielcarraro/Workspace/fingerprint_id/databases/Rindex28/f003R3.raw
+{'loop': [(14, 3)], 'delta': [(13, 11)]}
+/Users/gabrielcarraro/Workspace/fingerprint_id/databases/Rindex28/f027R2.raw
+{'loop': [(16, 5)], 'delta': [(10, 13)]}
+/Users/gabrielcarraro/Workspace/fingerprint_id/databases/Rindex28/f001R1.raw
+{'loop': [(20, 2)], 'delta': [(11, 14)]}
+/Users/gabrielcarraro/Workspace/fingerprint_id/databases/Rindex28/f021R4.raw
+{'loop': [(18, 7)], 'delta': [(15, 11), (20, 21)]}
+/Users/gabrielcarraro/Workspace/fingerprint_id/databases/Rindex28/f018R1.raw
+{'loop': [(15, 2)], 'delta': [(7, 10), (12, 8)]}
+/Users/gabrielcarraro/Workspace/fingerprint_id/databases/Rindex28/f005R4.raw
+{'loop': [(17, 8), (22, 22)], 'delta': [(14, 12), (18, 13)]}
+/Users/gabrielcarraro/Workspace/fingerprint_id/databases/Rindex28/f027R3.raw
+{'loop': [(13, 4), (17, 23)], 'delta': [(10, 12), (19, 23)]}
+/Users/gabrielcarraro/Workspace/fingerprint_id/databases/Rindex28/f003R2.raw
+{'loop': [(19, 5), (19, 22)], 'delta': [(16, 13)]}
+/Users/gabrielcarraro/Workspace/fingerprint_id/databases/Rindex28/f025R1.raw
+{'loop': [(13, 1), (14, 23)], 'delta': [(10, 10), (13, 10)]}
+/Users/gabrielcarraro/Workspace/fingerprint_id/databases/Rindex28/f025R3.raw
+{'loop': [(15, 13), (16, 24)], 'delta': [(14, 11), (19, 10)]}
+/Users/gabrielcarraro/Workspace/fingerprint_id/databases/Rindex28/f001R2.raw
+{'loop': [(22, 3)], 'delta': [(13, 15)]}
+/Users/gabrielcarraro/Workspace/fingerprint_id/databases/Rindex28/f027R1.raw
+{'loop': [(15, 5), (20, 24)], 'delta': [(11, 13), (22, 23)]}
+/Users/gabrielcarraro/Workspace/fingerprint_id/databases/Rindex28/f007R4.raw
+{'loop': [(11, 7)], 'delta': [(7, 11)]}
+/Users/gabrielcarraro/Workspace/fingerprint_id/databases/Rindex28/f018R3.raw
+{'loop': [(19, 23), (21, 4)], 'delta': [(15, 12), (19, 10)]}
+/Users/gabrielcarraro/Workspace/fingerprint_id/databases/Rindex28/f018R2.raw
+{'loop': [(17, 2)], 'delta': [(10, 11), (15, 8)]}
+/Users/gabrielcarraro/Workspace/fingerprint_id/databases/Rindex28/f023R4.raw
+{'loop': [(20, 9)], 'delta': [(16, 12)]}
+/Users/gabrielcarraro/Workspace/fingerprint_id/databases/Rindex28/f001R3.raw
+{'loop': [(20, 2)], 'delta': [(13, 13)]}
+/Users/gabrielcarraro/Workspace/fingerprint_id/databases/Rindex28/f025R2.raw
+{'loop': [(14, 2), (14, 25)], 'delta': [(11, 12), (14, 13)]}
+/Users/gabrielcarraro/Workspace/fingerprint_id/databases/Rindex28/f003R1.raw
+{'loop': [(20, 4)], 'delta': [(18, 11)]}
+/Users/gabrielcarraro/Workspace/fingerprint_id/databases/Rindex28/f027R4.raw
+{'loop': [(11, 5), (17, 23)], 'delta': [(10, 12), (18, 22)]}
+/Users/gabrielcarraro/Workspace/fingerprint_id/databases/Rindex28/f021R2.raw
+{'loop': [(16, 19), (21, 16)], 'delta': [(13, 8), (19, 19), (23, 15)]}
+/Users/gabrielcarraro/Workspace/fingerprint_id/databases/Rindex28/f007R1.raw
+{'loop': [(10, 10)], 'delta': [(6, 13)]}
+/Users/gabrielcarraro/Workspace/fingerprint_id/databases/Rindex28/f005R3.raw
+{'loop': [(17, 7), (22, 22)], 'delta': [(15, 12), (19, 12)]}
+/Users/gabrielcarraro/Workspace/fingerprint_id/databases/Rindex28/f005R2.raw
+{'loop': [(18, 7), (20, 22)], 'delta': [(15, 12), (18, 13)]}
+/Users/gabrielcarraro/Workspace/fingerprint_id/databases/Rindex28/f023R1.raw
+{'loop': [(21, 10)], 'delta': [(17, 13)]}
+/Users/gabrielcarraro/Workspace/fingerprint_id/databases/Rindex28/f021R3.raw
+{'loop': [(20, 8)], 'delta': [(17, 12)]}
+/Users/gabrielcarraro/Workspace/fingerprint_id/databases/Rindex28/f003R4.raw
+{'loop': [(12, 2), (12, 20)], 'delta': [(12, 8), (15, 19)]}
+/Users/gabrielcarraro/Workspace/fingerprint_id/databases/Rindex28/f001R4.raw
