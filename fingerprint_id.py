@@ -1,7 +1,6 @@
 import argparse
 from loader import *
 from board import *
-from fingerprint_lib import *
 from type_classifier import *
 from minutiae_extractor import *
 

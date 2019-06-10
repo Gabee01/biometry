@@ -37,7 +37,7 @@ class MinutiaeExtractor:
 				if (image[i][j] < quarter_percentile):
 					binarized_image[i][j] = 0
 				elif (image[i][j] > half_percientile):
-					binarized_image[i][j] = 1
+					binarized_image[i][j] = 255
 				else:
 					binarized_image[i][j] = self.compare_mean(image, i, j)
 
@@ -57,9 +57,9 @@ class MinutiaeExtractor:
 			block_pixels = [image[i - k][j - l] for k, l in cells]
 
 		if (image[i][j] > np.mean(block_pixels)):
-			return 255
-		else:
 			return 0
+		else:
+			return 255
 
 	def get_percentiles(self, histogram):
 		histogram_total = sum(histogram)
