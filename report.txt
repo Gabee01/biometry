@@ -1,0 +1,8 @@
+Region of interest detection
+	As bordas ainda apresentam algumas irregularidades, podem ser observadas utilizando o parâmetro --draw na aplicação. Achei tranquila a implementação dessa parte
+Singular point detection (Poincaré index)
+	Após o calculo do gradiente, o pincaré não foi um grande problema. Havia perdido muito tempo na implementação do gradiente, levei mais de duas aulas e também investi um tempo em casa para fazer o desenho. Isso me atrasou bastante. O calculo do poincaré foi tranquilo, porém não conclui a parte de remover os pontos redundantes encontrados.
+Fingerprint Type Classification
+	Não fiz a comparação com os tipos, as bases estão carregadas e tudo mais, mas não teria um valor realista sem antes remover os pontos redundantes, portanto não finalizei a classificação.
+
+Sobre a parte de extração de minucias, quando parei de mexer no trabalho estava tentando resolver um problema na esqueletização da digital.
