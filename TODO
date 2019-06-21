@@ -1,9 +1,10 @@
 OK Implement the fingerprint enhancement
 OK Compute the Orientation Map
-Load the Fingeprint type annotation
+OK Load the Fingeprint type annotation
 OK Region of interest detection
 OK Singular point detection (Poincaré index)
-OK? Fingerprint Type Classification
+Fingerprint Type Classification
 OK Thining
 Minutiae Extraction
 Pattern Matching
+Score Computation

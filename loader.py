@@ -21,22 +21,38 @@ class Loader():
 		return images
 
 	
+	# def load_types(self):
+	# 	types = []
+	# 	types_path = self.databasesPath + self.typesDir
+
+	# 	types_files = os.listdir(types_path)
+	# 	for file in types_files:
+	# 		if '.lif' in file:
+	# 			file_path = types_path + file
+
+	# 			# print("openning file {}".format(file_path))
+	# 			with open(file_path, 'r') as type_file:
+	# 				file_type_annotation = json.load(type_file)
+	# 				types.append(file_type_annotation)
+
+	# 	# print("read {} types: printing first:\n{}".format(len(types), types[0]))
+	# 	return types
 	def load_types(self):
-		types = []
-		types_path = self.databasesPath + self.typesDir
+		lifs_dir = './databases/Rindex28-type/'
+		files = [os.path.join(lifs_dir,f) for f in os.listdir(lifs_dir) 
+		         if f.endswith('.lif') and os.path.isfile(os.path.join(lifs_dir,f))]
 
-		types_files = os.listdir(types_path)
-		for file in types_files:
-			if '.lif' in file:
-				file_path = types_path + file
+		annotations = []
+		for f in files:
+			print f
 
-				# print("openning file {}".format(file_path))
-				with open(file_path, 'r') as type_file:
-					file_type_annotation = json.load(type_file)
-					types.append(file_type_annotation)
-
-		# print("read {} types: printing first:\n{}".format(len(types), types[0]))
-		return types
+			file_data = open(f).read()
+			data=json.loads(file_data)
+			
+			for es,s in enumerate(data["shapes"]):
+				print es,s["label"]
+				for p in s["points"]:
+					print p
 
 
 	def read_raw_image(self, image_name):
